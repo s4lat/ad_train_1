@@ -1,4 +1,5 @@
 from checkers.notebook import checker as nch
+from checkers.chessbase import checker as bch
 from config import CONFIG
 from db import db, init_db, Service, Flag
 import rstr, sys
@@ -8,7 +9,7 @@ NO_FLAG = 102
 MUMBLE = 103
 NO_CONNECT = 104
 
-CHECKERS = [nch, ]
+CHECKERS = [nch, bch]
 
 ROUND = int(sys.argv[1])
 
@@ -39,8 +40,7 @@ for name, team in CONFIG["TEAMS"].items():
                 break
 
             #Getting
-            flag_id, key = result["flag_id"], result["key"]
-            flag_id = flag_id + "." + key
+            flag_id = result["flag_id"]
             result = checker.get(ip, flag_id, flag)
 
             if result["status"] != OK:

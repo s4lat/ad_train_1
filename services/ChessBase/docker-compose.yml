@@ -1,0 +1,10 @@
+version: '3'
+services:
+  chess_base:
+    image: chessbase
+    build: .
+    ports:
+     - "8284:8284"
+    volumes:
+      - ./storage:/app/storage
+    restart: unless-stopped

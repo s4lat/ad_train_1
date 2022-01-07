@@ -4,3 +4,5 @@ __pycache__/
 platform/shared
 services/*/shared
 *.sqlite
+*.db
+*/storage/

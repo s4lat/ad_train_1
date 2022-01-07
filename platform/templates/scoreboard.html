@@ -34,7 +34,9 @@
             <th scope="col">#</th>
             <th scope="col">Team</th>
             <th scope="col">Score</th>
-            <th scope="col">Notebook</th>
+            {% for service in scoreboard[0]["services"] %}
+            <th scope="col">{{service.name}}</th>
+            {% endfor %}
           </tr>
         </thead>
         <tbody>
@@ -49,7 +51,7 @@
                 {% elif service.status == 102 %} #FFE180;
                 {% elif service.status == 103 %} #FFA875;
                 {% elif service.status == 104 %} #FF5959;
-                {% endif %}">
+                {% endif %}" title="{{ service.error }} ">
               SLA: {{ "%0.2f" % (service.up_rounds / CURRENT_ROUND * 100) }}%<br>
               FP: {{ service.fp}}<br>
               +{{service.submited}} ⚑ / -{{service.lost}} ⚑

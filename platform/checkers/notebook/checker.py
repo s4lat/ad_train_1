@@ -6,9 +6,9 @@ import requests, random, string, sys
 PORT = 8616
 
 OK = 101
-NO_FLAG = 102
+CORRUPT = 102
 MUMBLE = 103
-NO_CONNECT = 104
+DOWN = 104
 CHECKER_ERROR = 110
 
 
@@ -20,12 +20,12 @@ def check(ip):
     try:
         r = requests.get('http://' + ip + ":8616", timeout=5)
     except requests.exceptions.Timeout as e:
-        return {"status": NO_CONNECT, "error": "Got a timeout while accessing server."}
+        return {"status": DOWN, "error": "Got a timeout while accessing server."}
     except:
-        return {"status": NO_CONNECT, "error": "Could not access server."}
+        return {"status": DOWN, "error": "Could not access server."}
 
     if r.status_code != 200:
-        return {"status": NO_CONNECT, "error": "Could not access server."}
+        return {"status": DOWN, "error": "Could not access server."}
     if r.headers["Content-Type"] != "text/html; charset=utf-8":
         return {"status": MUMBLE, "error": "Page content is corrupted"}
     if "n0t3b00k" not in r.text:
@@ -41,13 +41,13 @@ def put(ip, flag):
     try:
         r = requests.post('http://%s:8616/create' % ip, data=payload, timeout=5)
     except requests.exceptions.Timeout as e:
-        return {"status": NO_CONNECT, "error": "Got a timeout while accessing server.", "flag_id": flag_id, "key": key}
+        return {"status": DOWN, "error": "Got a timeout while accessing server.", "flag_id": flag_id, "key": key}
     except:
-        return {"status": NO_CONNECT, "error": "Could not access server.", "flag_id": flag_id, "key": key}
+        return {"status": DOWN, "error": "Could not access server.", "flag_id": flag_id, "key": key}
 
     if r.text != "Note successfully created!":
         return {"status": MUMBLE, "error": "Got an unexpected response.", "flag_id": flag_id, "key": key}
-    return {"status": OK, "flag_id": flag_id, "key": key}
+    return {"status": OK, "flag_id": "%s.%s" % (flag_id, key)}
 
 
 def get(ip, flag_id, flag):
@@ -57,15 +57,15 @@ def get(ip, flag_id, flag):
     try:
         r = requests.post('http://%s:8616/note' % ip, data=payload, timeout=5)
     except requests.exceptions.Timeout as e:
-        return {"status": NO_CONNECT, "error": "Got a timeout while accessing server."}
+        return {"status": DOWN, "error": "Got a timeout while accessing server."}
     except:
-        return {"status": NO_CONNECT, "error": "Could not access server."}
+        return {"status": DOWN, "error": "Could not access server."}
     try:
         text = str(r.text)
     except:
         return {"status": MUMBLE, "error": "Doesn't return flag properly."}
     if str(r.text) != flag:
-        return {"status": NO_FLAG, "error": "Flag doesn't exist or changed."}
+        return {"status": CORRUPT, "error": "Flag doesn't exist or changed."}
     return {"status": OK}
 
 

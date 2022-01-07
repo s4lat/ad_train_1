@@ -11,6 +11,7 @@ def init_db(db):
 
     for name, team in CONFIG["TEAMS"].items():
         Service.get_or_create(name="notebook", ip=team["ip"], port=8616, team=name)
+        Service.get_or_create(name="basechess", ip=team["ip"], port=8284, team=name)
 
     db.close()
 

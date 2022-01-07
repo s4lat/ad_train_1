@@ -4,7 +4,7 @@ CONFIG = {
     # The clients will run sploits on TEAMS and
     # fetch FLAG_FORMAT from sploits' stdout.
     'TEAMS': {
-        "Team KEK" : {"token" : "asdfx321", "ip" : "host.docker.internal"},
+        "Team KEK" : {"token" : "asdfx321", "ip" : "localhost"},
         "Team LOL" : {"token" : "eshkerelol", "ip" : "138.197.185.98"}
      },
 
