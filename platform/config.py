@@ -14,10 +14,12 @@ CONFIG = {
      },
 
     'FLAG_FORMAT': r'[A-Z0-9]{31}=',
+    'FLAGS_PER_ROUND' : 5
 
     'SUBMIT_FLAG_LIMIT': 50,
     'SUBMIT_PERIOD': 5,
     'FLAG_LIFETIME': 5 * 60,
+    'ROUND_DURATION': 60,
 
     # Password for the web interface. You can use it with any login.
     # This value will be excluded from the config before sending it to farm clients.

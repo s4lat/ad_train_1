@@ -3,3 +3,4 @@ Flask_APScheduler
 peewee
 requests
 rstr
+gunicorn

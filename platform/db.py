@@ -5,10 +5,12 @@ db = SqliteDatabase('shared/data.db')
 
 def init_db(db):
     db.connect()
-    db.create_tables([Service, Flag])
+    db.create_tables([Service, Flag, CheckSystem])
+    
+    CheckSystem.get_or_create(round=0, is_checking=False)
 
     for name, team in CONFIG["TEAMS"].items():
-        service = Service.get_or_create(name="notebook", ip=team["ip"], port=8616, team=name)
+        Service.get_or_create(name="notebook", ip=team["ip"], port=8616, team=name)
 
     db.close()
 
@@ -32,6 +34,13 @@ class Flag(Model):
     service = ForeignKeyField(Service, backref='flags')
     creation_round = IntegerField()
     submited = BooleanField(default=False)
+
+    class Meta:
+        database = db
+
+class CheckSystem(Model):
+    round = IntegerField(default=0)
+    is_checking = BooleanField(default=False)
 
     class Meta:
         database = db

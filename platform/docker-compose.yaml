@@ -1,0 +1,8 @@
+version: "3.3"
+services:
+  platform:
+    build: .
+    ports:
+      - 80:80
+    volumes:
+      - ./shared:/service/shared

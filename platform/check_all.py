@@ -31,7 +31,7 @@ for name, team in CONFIG["TEAMS"].items():
             continue
 
         #PUTTING & GETTING
-        for i in range(5):
+        for i in range(CONFIG["FLAGS_PER_ROUND"]):
             #Putting
             flag = rstr.xeger(CONFIG["FLAG_FORMAT"])
             result = checker.put(ip, flag)

@@ -1,41 +1,40 @@
 from flask import Flask, request, json
 from flask_apscheduler import APScheduler
-from db import db, init_db, Service, Flag
+from db import db, init_db, Service, Flag, CheckSystem
 from config import CONFIG
 import os, subprocess, re
 import warnings
 
 warnings.filterwarnings("ignore")
 
-IS_CHECKING = False
-CURRENT_ROUND = None
 
 app = Flask(__name__)
+
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
+
 init_db(db)
 
-if (os.path.isfile("./shared/current_round")):
-    with open("./shared/current_round", "r") as f:
-        CURRENT_ROUND = int(f.read())
-else:
-    with open("./shared/current_round", "w") as f:
-        CURRENT_ROUND = 0
-        f.write("0")
-
+@scheduler.task('interval', id='checker', seconds=CONFIG["ROUND_DURATION"])
 def check_all():
-    global CURRENT_ROUND, IS_CHECKING
+    check_system = CheckSystem.select()[0]
+    check_system.is_checking = True
+    check_system.save()
 
-    IS_CHECKING = True
-    result = subprocess.run(["python3", "check_all.py", str(CURRENT_ROUND)])
-    CURRENT_ROUND += 1
+    result = subprocess.run(["python3", "check_all.py", str(check_system.round)])
+    check_system.round += 1
+    check_system.save()
 
-    with open("./shared/current_round", "w") as f:
-        f.write(str(CURRENT_ROUND))
-
-    IS_CHECKING = False
+    check_system.is_checking = False
+    check_system.save()
 
 
 @app.route("/")
 def index():
+    check_system = CheckSystem.select()[0]
+    IS_CHECKING, CURRENT_ROUND = check_system.is_checking, check_system.round
+
     if IS_CHECKING or CURRENT_ROUND == 0:
         return "Updating scoreboard, please wait..."
 
@@ -71,7 +70,9 @@ def index():
 
 @app.route("/submit", methods=["PUT"])
 def submit():
-    global SCOREBOARD
+    check_system = CheckSystem.select()[0]
+    IS_CHECKING, CURRENT_ROUND = check_system.is_checking, check_system.round
+
     token = request.headers.get('X-Team-Token')
     teams_tokens = [team["token"] for team in CONFIG["TEAMS"].values()]
     if token not in teams_tokens:
@@ -99,7 +100,7 @@ def submit():
         result = result.get()
         if result.team_token == token:
             resp.append("It's your own flag!")
-        elif CURRENT_ROUND - result.creation_round > 5:
+        elif CURRENT_ROUND - result.creation_round > FLAG_LIFETIME / CONFIG["ROUND_DURATION"]:
             resp.append("Flag is expired!")
         elif result.submited:
             resp.append("Already submitted!")
@@ -109,7 +110,7 @@ def submit():
             for team in CONFIG["TEAMS"]:
                 score = 0
                 for s in services.where(Service.team == team):
-                    score += s.fp * (service.up_rounds/CURRENT_ROUND)
+                    score += s.fp * (s.up_rounds/CURRENT_ROUND)
                 scoreboard.append([team, score])
 
             scoreboard = sorted(scoreboard, key=lambda team: team[1])[::-1]
@@ -148,7 +149,4 @@ def submit():
 
 
 if __name__ == "__main__":
-    scheduler = APScheduler()
-    scheduler.add_job(func=check_all, trigger='interval', id='checker', seconds=30)
-    scheduler.start()
     app.run("0.0.0.0", 80)
