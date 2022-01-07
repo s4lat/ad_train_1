@@ -1,0 +1,9 @@
+version: "3.3"
+services:
+  notebook_v1:
+    build: .
+    ports:
+      - 8616:8616
+    volumes:
+      - ./shared/static:/service/static
+      - ./shared/notes:/service/notes

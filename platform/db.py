@@ -1,7 +1,7 @@
 from config import CONFIG
 from peewee import *
 
-db = SqliteDatabase('shared/data.db')
+db = SqliteDatabase('shared/data.sqlite')
 
 def init_db(db):
     db.connect()

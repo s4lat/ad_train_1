@@ -2,3 +2,5 @@ __pycache__/
 *.pyc
 .DS_Store
 platform/shared
+services/*/shared
+*.sqlite

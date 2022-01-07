@@ -4,4 +4,4 @@ WORKDIR ./service
 RUN pip install --no-cache-dir -r requirements.txt
 RUN mkdir notes
 
-CMD ["gunicorn", "--bind", "0.0.0.0:80", "app:app", "--workers=2"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8616", "app:app", "--workers=2"]
