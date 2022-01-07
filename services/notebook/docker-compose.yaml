@@ -1,0 +1,8 @@
+version: "3.3"
+services:
+  notebook:
+    build: .
+    ports:
+      - 8616:80
+    # volumes:
+    #   - ./notebook_static:/service/static

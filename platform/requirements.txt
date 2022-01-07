@@ -1,0 +1,5 @@
+Flask
+Flask_APScheduler
+peewee
+requests
+rstr

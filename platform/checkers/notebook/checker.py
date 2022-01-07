@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import requests, random, string, sys
 
+PORT = 8616
 
 OK = 101
 NO_FLAG = 102
@@ -30,7 +31,7 @@ def check(ip):
     return {"status": OK}
 
 
-def put(ip, flag_id, flag):
+def put(ip, flag):
     flag_id = generate_string(10)
     key = generate_string(10)
     payload = {'note-name': flag_id, 'text': flag, 'key': key}
@@ -48,7 +49,7 @@ def put(ip, flag_id, flag):
 
 
 def get(ip, flag_id, flag):
-    flag_id, key = flag_id.split('.')
+    flag_id, key = flag_id.split(".")
     payload = {'note-name': flag_id, 'key': key}
     
     try:
