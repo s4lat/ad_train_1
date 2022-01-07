@@ -5,7 +5,7 @@ CONFIG = {
     # fetch FLAG_FORMAT from sploits' stdout.
     'TEAMS': {
         "Team KEK" : {"token" : "asdfx321", "ip" : "0.0.0.0"},
-        "Team LOL" : {"token" : "eshkerelol", "ip" : "8.8.8.8"}
+        "Team LOL" : {"token" : "eshkerelol", "ip" : "138.197.185.98"}
      },
 
      'TOKEN2TEAM': {

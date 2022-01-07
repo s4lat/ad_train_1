@@ -3,10 +3,12 @@ from flask_apscheduler import APScheduler
 from db import db, init_db, Service, Flag
 from config import CONFIG
 import os, subprocess, re
+import warnings
+
+warnings.filterwarnings("ignore")
 
 IS_CHECKING = False
 CURRENT_ROUND = None
-SCOREBOARD = []
 
 app = Flask(__name__)
 init_db(db)
@@ -40,12 +42,31 @@ def index():
     db.connect(db)
     services = Service.select()
     resp = "ROUND: %s<br>" % CURRENT_ROUND
+
+    resp = resp + "SERVICES:<br>"
     for service in services:
         SLA = (service.up_rounds/CURRENT_ROUND) * 100
-        resp = resp + "\t%s | %s | %s | %0.2f | %0.3f | %s<br>" % (service.name, service.ip, 
-            service.status, SLA, service.fp, service.error)
+        resp = resp + "&nbsp&nbsp%s | %s | %s | %s | %0.2f | %0.3f | %s<br>" % (
+            service.team, service.name, service.ip, service.status, 
+            SLA, service.fp, service.error)
     
     db.close()
+
+    services = Service.select()
+    scoreboard = []
+    for team in CONFIG["TEAMS"]:
+        score = 0
+        for s in services.where(Service.team == team):
+            score += s.fp * (s.up_rounds/CURRENT_ROUND)
+        scoreboard.append([team, score])
+
+    scoreboard = sorted(scoreboard, key=lambda team: team[1])[::-1]
+
+    resp = resp + "SCOREBOARD:<br>"
+
+    for team in scoreboard:
+        resp = resp + "&nbsp&nbsp%s: %0.4f<br>" % (team[0], team[1]) 
+
     return resp
 
 @app.route("/submit", methods=["PUT"])
@@ -78,7 +99,6 @@ def submit():
         result = result.get()
         if result.team_token == token:
             resp.append("It's your own flag!")
-            continue
         elif CURRENT_ROUND - result.creation_round > 5:
             resp.append("Flag is expired!")
         elif result.submited:
@@ -89,15 +109,14 @@ def submit():
             for team in CONFIG["TEAMS"]:
                 score = 0
                 for s in services.where(Service.team == team):
-                    score += s.fp
+                    score += s.fp * (service.up_rounds/CURRENT_ROUND)
                 scoreboard.append([team, score])
 
-            scoreboard = sorted(scoreboard, key=lambda team: team[1])
-            SCOREBOARD = scoreboard
+            scoreboard = sorted(scoreboard, key=lambda team: team[1])[::-1]
 
             attack_N = None
             for i, (name, score) in enumerate(scoreboard):
-                if CONFIG["TOKEN2TEAM"][token] == team:
+                if CONFIG["TOKEN2TEAM"][token] == name:
                     attack_N = i
                     break
 

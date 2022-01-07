@@ -20,7 +20,7 @@ class Service(Model):
     status = IntegerField(default=104)
     error = CharField(default="")
     up_rounds = IntegerField(default=0)
-    fp = IntegerField(default=len(CONFIG["TEAMS"]))
+    fp =  FloatField(default=len(CONFIG["TEAMS"]))
 
     class Meta:
         database = db
