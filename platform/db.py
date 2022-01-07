@@ -23,6 +23,9 @@ class Service(Model):
     error = CharField(default="")
     up_rounds = IntegerField(default=0)
     fp =  FloatField(default=len(CONFIG["TEAMS"]))
+    submited = IntegerField(default=0)
+    lost = IntegerField(default=0)
+
 
     class Meta:
         database = db

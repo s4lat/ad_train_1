@@ -9,7 +9,6 @@ MUMBLE = 103
 NO_CONNECT = 104
 
 CHECKERS = [nch, ]
-STATUS = {101 : "OK", 102 : "CORRUPT", 103 : "MUMBLE", 104 : "DOWN"}
 
 ROUND = int(sys.argv[1])
 
@@ -22,9 +21,7 @@ for name, team in CONFIG["TEAMS"].items():
 
         #CHECKING
         result = checker.check(ip)
-        # print(name, ip, result["status"])
         if result["status"] != OK:
-            # print(service.ip)
             service.status = result["status"]
             service.error = result["error"]
             service.save()

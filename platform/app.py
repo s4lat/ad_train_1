@@ -1,4 +1,4 @@
-from flask import Flask, request, json
+from flask import Flask, request, json, render_template
 from flask_apscheduler import APScheduler
 from db import db, init_db, Service, Flag, CheckSystem
 from config import CONFIG
@@ -18,6 +18,7 @@ init_db(db)
 
 @scheduler.task('interval', id='checker', seconds=CONFIG["ROUND_DURATION"])
 def check_all():
+    db.connect()
     check_system = CheckSystem.select()[0]
     check_system.is_checking = True
     check_system.save()
@@ -28,45 +29,36 @@ def check_all():
 
     check_system.is_checking = False
     check_system.save()
+    db.close()
 
 
 @app.route("/")
 def index():
+    db.connect(db)
+
     check_system = CheckSystem.select()[0]
     IS_CHECKING, CURRENT_ROUND = check_system.is_checking, check_system.round
 
     if IS_CHECKING or CURRENT_ROUND == 0:
-        return "Updating scoreboard, please wait..."
-
-    db.connect(db)
-    services = Service.select()
-    resp = "ROUND: %s<br>" % CURRENT_ROUND
-
-    resp = resp + "SERVICES:<br>"
-    for service in services:
-        SLA = (service.up_rounds/CURRENT_ROUND) * 100
-        resp = resp + "&nbsp&nbsp%s | %s | %s | %s | %0.2f | %0.3f | %s<br>" % (
-            service.team, service.name, service.ip, service.status, 
-            SLA, service.fp, service.error)
     
-    db.close()
+        return ('<head><meta charset="utf-8"><meta http-equiv="refresh" content="5">' +
+            '<title> AD_SCOREBOARD</title></head>' + 'Updating scoreboard, please wait...')
 
     services = Service.select()
     scoreboard = []
     for team in CONFIG["TEAMS"]:
+        team_services = []
         score = 0
         for s in services.where(Service.team == team):
             score += s.fp * (s.up_rounds/CURRENT_ROUND)
-        scoreboard.append([team, score])
+            team_services.append(s)
 
-    scoreboard = sorted(scoreboard, key=lambda team: team[1])[::-1]
+        scoreboard.append({"name" : team, "score" : score, "services" : tuple(team_services)})
 
-    resp = resp + "SCOREBOARD:<br>"
+    scoreboard = sorted(scoreboard, key=lambda team: team["score"])[::-1]
 
-    for team in scoreboard:
-        resp = resp + "&nbsp&nbsp%s: %0.4f<br>" % (team[0], team[1]) 
-
-    return resp
+    db.close()
+    return render_template("scoreboard.html", scoreboard=scoreboard, CURRENT_ROUND=CURRENT_ROUND)
 
 @app.route("/submit", methods=["PUT"])
 def submit():
@@ -100,7 +92,7 @@ def submit():
         result = result.get()
         if result.team_token == token:
             resp.append("It's your own flag!")
-        elif CURRENT_ROUND - result.creation_round > FLAG_LIFETIME / CONFIG["ROUND_DURATION"]:
+        elif CURRENT_ROUND - result.creation_round > CONFIG["FLAG_LIFETIME"] / CONFIG["ROUND_DURATION"]:
             resp.append("Flag is expired!")
         elif result.submited:
             resp.append("Already submitted!")
@@ -129,12 +121,16 @@ def submit():
 
             N = len(CONFIG["TEAMS"])
             delta_fp = pow(N, min(1, (N - defense_N)/(N - attack_N)))
-            result.service.fp = max(0, result.service.fp - delta_fp)
-            result.service.save()
+
+            defense_s = result.service
+            defense_s.fp = max(0, defense_s.fp - delta_fp)
+            defense_s.lost += 1
+            defense_s.save()
 
             attack_s = Service.get((Service.team == CONFIG["TOKEN2TEAM"][token]) & 
                 (Service.name == result.service.name))
             attack_s.fp += delta_fp;
+            attack_s.submited += 1;
             attack_s.save()
 
             result.submited = True
