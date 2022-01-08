@@ -82,24 +82,24 @@ def submit():
         if i > 50:
             break
 
+        msg = ""
         matched = re.match(CONFIG["FLAG_FORMAT"], flag)
         if not matched:
-            resp.append("Wrong flag")
+            msg = "Wrong flag"
             continue
 
         result = Flag.select().where(Flag.flag == flag)
-        
         if not result.exists():
-            resp.append("Flag not in database!")
+            msg = "Flag not in database!"
             continue
 
         result = result.get()
         if result.team_token == token:
-            resp.append("It's your own flag!")
+            msg = "It's your own flag!"
         elif CURRENT_ROUND - result.creation_round > CONFIG["FLAG_LIFETIME"] / CONFIG["ROUND_DURATION"]:
-            resp.append("Flag is expired!")
+            msg = "Flag is expired!"
         elif result.submited:
-            resp.append("Already submitted!")
+            msg = "Already submitted!"
         else:
             services = Service.select()
             scoreboard = []
@@ -139,7 +139,9 @@ def submit():
 
             result.submited = True
             result.save()
-            resp.append("The flag is accepted! You received %s points." % delta_fp)
+            msg = "The flag is accepted! You received %s points." % delta_fp
+
+        resp.append({"flag" : flag, "msg" : msg})
 
     return app.response_class(
         response=json.dumps(resp),
