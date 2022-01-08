@@ -48,7 +48,7 @@ def index():
     check_system = CheckSystem.select()[0]
     IS_CHECKING, CURRENT_ROUND = check_system.is_checking, check_system.round
 
-    if IS_CHECKING and CURRENT_ROUND == 0:
+    if IS_CHECKING or CURRENT_ROUND == 0:
         return ('<head><meta charset="utf-8"><meta http-equiv="refresh" content="5">' +
             '<title> AD_SCOREBOARD</title></head>' + 'Updating scoreboard, please wait...')
 
