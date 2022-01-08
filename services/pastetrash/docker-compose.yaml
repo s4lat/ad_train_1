@@ -1,0 +1,6 @@
+version: "3.3"
+services:
+  notebook_v1:
+    build: .
+    ports:
+      - 8080:8080
