@@ -13,53 +13,55 @@ NO_CONNECT = 104
 CHECKERS = [nch, bch, pch]
 
 ROUND = int(sys.argv[1])
+ip = sys.argv[2]
+team_token = sys.argv[3]
+
+
 
 db.connect()
-for name, team in CONFIG["TEAMS"].items():
-    ip = team["ip"]
 
-    for checker in CHECKERS:
-        service = Service.get((Service.ip == ip) & (Service.port == checker.PORT))
+for checker in CHECKERS:
+    service = Service.get((Service.ip == ip) & (Service.port == checker.PORT))
 
-        #CHECKING
-        result = checker.check(ip)
+    #CHECKING
+    result = checker.check(ip)
+    if result["status"] != OK:
+        service.status = result["status"]
+        service.error = result["error"]
+        service.save()
+        continue
+
+    #PUTTING & GETTING
+    for i in range(CONFIG["FLAGS_PER_ROUND"]):
+        #Putting
+        flag = rstr.xeger(CONFIG["FLAG_FORMAT"])
+        result = checker.put(ip, flag)
         if result["status"] != OK:
             service.status = result["status"]
             service.error = result["error"]
             service.save()
-            continue
+            break
 
-        #PUTTING & GETTING
-        for i in range(CONFIG["FLAGS_PER_ROUND"]):
-            #Putting
-            flag = rstr.xeger(CONFIG["FLAG_FORMAT"])
-            result = checker.put(ip, flag)
-            if result["status"] != OK:
-                service.status = result["status"]
-                service.error = result["error"]
-                service.save()
-                break
+        #Getting
+        flag_id = result["flag_id"]
+        result = checker.get(ip, flag_id, flag)
 
-            #Getting
-            flag_id = result["flag_id"]
-            result = checker.get(ip, flag_id, flag)
-
-            if result["status"] != OK:
-                service.status = result["status"]
-                service.error = result["error"]
-                service.save()
-                break
-
-            Flag.create(flag=flag, flag_id=flag_id, team_token=team["token"],
-                service=service, creation_round=ROUND)
-
-        service.status = result["status"]
-        if service.status == OK:
-            service.up_rounds += 1
-            service.error = ""
-        else:
+        if result["status"] != OK:
+            service.status = result["status"]
             service.error = result["error"]
+            service.save()
+            break
 
-        service.save()
+        Flag.create(flag=flag, flag_id=flag_id, team_token=team_token,
+            service=service, creation_round=ROUND)
+
+    service.status = result["status"]
+    if service.status == OK:
+        service.up_rounds += 1
+        service.error = ""
+    else:
+        service.error = result["error"]
+
+    service.save()
 
 db.close()

@@ -2,8 +2,8 @@ from flask import Flask, request, json, render_template
 from flask_apscheduler import APScheduler
 from db import db, init_db, Service, Flag, CheckSystem
 from config import CONFIG
-import os, subprocess, re
-import warnings
+from subprocess import Popen
+import os, re, warnings
 
 warnings.filterwarnings("ignore")
 
@@ -23,7 +23,16 @@ def check_all():
     check_system.is_checking = True
     check_system.save()
 
-    result = subprocess.run(["python3", "check_all.py", str(check_system.round)])
+    procs = []
+    for team in CONFIG["TEAMS"]:
+        team = CONFIG["TEAMS"][team]
+        procs.append(Popen(["python3", "check_all.py", str(check_system.round), 
+            team["ip"], team["token"]]))
+
+    for p in procs:
+        p.wait()
+
+    # subprocess.run(cmd)
     check_system.round += 1
     check_system.save()
 
@@ -39,8 +48,7 @@ def index():
     check_system = CheckSystem.select()[0]
     IS_CHECKING, CURRENT_ROUND = check_system.is_checking, check_system.round
 
-    if IS_CHECKING or CURRENT_ROUND == 0:
-    
+    if IS_CHECKING:
         return ('<head><meta charset="utf-8"><meta http-equiv="refresh" content="5">' +
             '<title> AD_SCOREBOARD</title></head>' + 'Updating scoreboard, please wait...')
 
