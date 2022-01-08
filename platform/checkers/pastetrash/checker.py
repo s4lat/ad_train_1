@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 import requests, random, string, sys
 
-#" || python3 -c "import db; print(list(db.Note.select().dicts()));
-
 PORT = 8080
 
 OK = 101

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import requests, random, string, sys
 
-#" || python3 -c "import db; print(list(db.Note.select().dicts()));
+#" || python3 -c "import db; from utility import *; notes = list(db.Note.select().dicts()); [print(decrypt(open('notes/' + note['name']).read(), note['key'])) for note in notes];
+
 
 PORT = 8616
 
