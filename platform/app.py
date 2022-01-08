@@ -26,16 +26,12 @@ def check_all():
     procs = []
     for team in CONFIG["TEAMS"]:
         team = CONFIG["TEAMS"][team]
-        procs.append(Popen(["python3", "check_all.py", str(check_system.round), 
-            team["ip"], team["token"]]))
+        procs.append(Popen(["python3", "check_all.py", team["ip"], team["token"]]))
 
     for p in procs:
         p.wait()
 
-    # subprocess.run(cmd)
     check_system.round += 1
-    check_system.save()
-
     check_system.is_checking = False
     check_system.save()
     db.close()

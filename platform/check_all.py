@@ -2,7 +2,7 @@ from checkers.notebook import checker as nch
 from checkers.chessbase import checker as bch
 from checkers.pastetrash import checker as pch
 from config import CONFIG
-from db import db, init_db, Service, Flag
+from db import db, init_db, Service, Flag, CheckSystem
 import rstr, sys
 
 OK = 101
@@ -12,13 +12,11 @@ NO_CONNECT = 104
 
 CHECKERS = [nch, bch, pch]
 
-ROUND = int(sys.argv[1])
-ip = sys.argv[2]
-team_token = sys.argv[3]
-
-
+ip = sys.argv[1]
+team_token = sys.argv[2]
 
 db.connect()
+check_system = CheckSystem.select()[0]
 
 for checker in CHECKERS:
     service = Service.get((Service.ip == ip) & (Service.port == checker.PORT))
@@ -53,11 +51,12 @@ for checker in CHECKERS:
             break
 
         Flag.create(flag=flag, flag_id=flag_id, team_token=team_token,
-            service=service, creation_round=ROUND)
+            service=service, creation_round=check_system.round)
 
     service.status = result["status"]
     if service.status == OK:
-        service.up_rounds += 1
+        if not (service.up_rounds > check_system.round):
+            service.up_rounds += 1
         service.error = ""
     else:
         service.error = result["error"]
