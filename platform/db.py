@@ -7,7 +7,7 @@ def init_db(db):
     db.connect()
     db.create_tables([Service, Flag, CheckSystem])
     
-    CheckSystem.get_or_create(round=0, is_checking=False)
+    CheckSystem.get_or_create()
 
     for name, team in CONFIG["TEAMS"].items():
         Service.get_or_create(name="pastetrash", ip=team["ip"], port=8080, team=name)

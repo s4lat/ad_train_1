@@ -58,7 +58,7 @@
                 {% elif service.status == 104 %} #FF5959;
                 {% endif %}" title="{{ service.error }} ">
               SLA: {{ "%0.2f" % (service.up_rounds / CURRENT_ROUND * 100) }}%<br>
-              FP: {{ service.fp}}<br>
+              FP: {{ "%0.4f" % service.fp }}<br>
               +{{service.submited}} ⚑ / -{{service.lost}} ⚑
             </td>
             {% endfor %}
