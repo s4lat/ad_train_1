@@ -1,5 +1,6 @@
 from checkers.notebook import checker as nch
 from checkers.chessbase import checker as bch
+from checkers.pastetrash import checker as pch
 from config import CONFIG
 from db import db, init_db, Service, Flag
 import rstr, sys
@@ -9,7 +10,7 @@ NO_FLAG = 102
 MUMBLE = 103
 NO_CONNECT = 104
 
-CHECKERS = [nch, bch]
+CHECKERS = [nch, bch, pch]
 
 ROUND = int(sys.argv[1])
 

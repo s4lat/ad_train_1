@@ -10,6 +10,7 @@ def init_db(db):
     CheckSystem.get_or_create(round=0, is_checking=False)
 
     for name, team in CONFIG["TEAMS"].items():
+        Service.get_or_create(name="pastetrash", ip=team["ip"], port=8080, team=name)
         Service.get_or_create(name="notebook", ip=team["ip"], port=8616, team=name)
         Service.get_or_create(name="basechess", ip=team["ip"], port=8284, team=name)
 
