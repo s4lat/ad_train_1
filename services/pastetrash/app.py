@@ -42,6 +42,7 @@ Hello, you athorized as <strong>%s</strong>.
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+	db.connect()
 	is_auth = True
 	try:
 		cookies = request.cookies.get("auth")
@@ -54,6 +55,7 @@ def index():
 	if request.method == "POST":
 		content = request.values.get("content")
 		if not len(content):
+			db.close()
 			return render_template_string("Paste should not be empty!")
 
 		h = (str(randint(0, 13370)) + content + str(randint(0, 13370))).encode("utf-8")
@@ -63,31 +65,32 @@ def index():
 
 		if is_auth:
 			try:
-				db.connect()
 				user = User.get(username=user['username'], pwd=user['pwd'])
 				if user:
 					Paste.create(file_name=h, owner=user)
 				db.close()
 				return redirect("/")
-			except UserDoesNotExist:
+			except User.DoesNotExist:
 				pass
 
+		db.close()
 		return redirect("/paste/%s" % h)
 
 	if is_auth:
 		try:
-			db.connect()
 			user_in_db = User.get(username=user['username'], pwd=user['pwd'])
-			db.close()
 		except User.DoesNotExist:
+			db.close()
 			return render_template_string(NONAUTH_INDEX_PAGE)
 
 		pastes = [paste.file_name for paste in Paste.select().where(Paste.owner == user["id"])]
 		pastes = [f'<li><a href="/paste/{paste}" target="_blank" rel="noopener noreferrer"> {paste} </a></li>' for paste in pastes]
 
+		db.close()
 		return render_template_string(AUTH_INDEX_PAGE % ('<br>'.join(pastes), 
 			user["username"]))
-
+	
+	db.close()
 	return render_template_string(NONAUTH_INDEX_PAGE)
 
 @app.route("/paste/<string:h>")
@@ -100,6 +103,7 @@ def paste(h):
 
 @app.route("/auth", methods=["POST"])
 def register():
+	db.connect()
 	username = request.values.get("username")
 	pwd = request.values.get("pwd")
 	
@@ -112,6 +116,7 @@ def register():
 
 	resp = redirect("/")
 	resp.set_cookie(key="auth", value=token, max_age=9999999)
+	db.close()
 	return resp
 
 @app.route("/logout", methods=["GET"])
