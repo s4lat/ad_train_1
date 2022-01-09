@@ -6,3 +6,5 @@ services/*/shared
 *.sqlite
 *.db
 */storage/
+pastes/
+*.paste

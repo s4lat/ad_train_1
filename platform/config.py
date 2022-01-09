@@ -1,7 +1,7 @@
 CONFIG = {
     'TEAMS': {
         "Team LOL" : {"token" : "eshkerelol", "ip" : "138.197.185.98"},
-        "Team NPC" : {"token" : "asdfx321", "ip" : "host.docker.internal"}
+        "Team NPC" : {"token" : "asdfx321", "ip" : "localhost"}
      },
 
      'TOKEN2TEAM': {

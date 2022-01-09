@@ -32,18 +32,34 @@ def check(ip):
 
 
 def put(ip, flag):
-    payload = {'content': flag}
+    s = requests.Session()
 
+    username = generate_string(16)
+    pwd = generate_string(16)
     try:
-        r = requests.post('http://%s:8080/' % ip, data=payload, timeout=5)
+        r = s.post("http://" + ip + ":8080/auth", data={"username" : username, "pwd" : pwd})
     except requests.exceptions.Timeout as e:
         return {"status": DOWN, "error": "Got a timeout while accessing server."}
     except:
         return {"status": DOWN, "error": "Could not access server."}
 
-    if flag not in r.text:
+    if username not in r.text:
         return {"status": MUMBLE, "error": "Got an unexpected response."}
-    return {"status": OK, "flag_id": "%s" % r.url.split("/")[-1]}
+
+    try: 
+        r = s.post("http://" + ip + ":8080/", data={"content" : flag})
+    except requests.exceptions.Timeout as e:
+        return {"status": DOWN, "error": "Got a timeout while accessing server."}
+    except Exception as e:
+        return {"status": DOWN, "error": "Could not access server."}
+
+    try:
+        start_ind = str(r.content).index('href="') + 13
+        flag_id = str(r.content)[start_ind:start_ind+40]
+    except ValueError:
+        return {"status": MUMBLE, "error": "Got an unexpected response."}
+
+    return {"status": OK, "flag_id": flag_id}
 
 
 def get(ip, flag_id, flag):    
@@ -77,7 +93,8 @@ if __name__ == "__main__":
         if r["status"] != OK:
             print(r["error"], file=sys.stderr)
         else:
-            print(r["flag_id"])
+            print('flag_id:', r["flag_id"])
+            pass
         exit(r["status"])
     if args[0] == "get":
         ip, flag_id, flag = args[1], args[2], args[3]
