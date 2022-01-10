@@ -11,7 +11,7 @@ CONFIG = {
 
     'FLAG_FORMAT': r'[A-Z0-9]{31}=',
 
-    'FLAGS_PER_ROUND' : 5,
+    'FLAGS_PER_ROUND' : 3,
     'SUBMIT_FLAG_LIMIT': 50,
     'SUBMIT_PERIOD': 5,
     'FLAG_LIFETIME': 5 * 60,

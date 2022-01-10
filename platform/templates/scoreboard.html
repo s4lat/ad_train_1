@@ -49,7 +49,7 @@
               {{ team["services"][0].ip }}
               </a>
             </td>
-            <td scope="col">{{ "%0.4f" % team["score"] }}</td>
+            <td scope="col">{{ "%0.2f" % team["score"] }}</td>
             {% for service in team['services'] %}
             <td scope="col" style="--bs-table-bg: 
                 {% if service.status == 101 %} #D0FF7D;
@@ -58,7 +58,7 @@
                 {% elif service.status == 104 %} #FF5959;
                 {% endif %}" title="{{ service.error }} ">
               SLA: {{ "%0.2f" % (service.up_rounds / CURRENT_ROUND * 100) }}%<br>
-              FP: {{ "%0.4f" % service.fp }}<br>
+              FP: {{ "%0.2f" % service.fp }}<br>
               +{{service.submited}} ⚑ / -{{service.lost}} ⚑
             </td>
             {% endfor %}
