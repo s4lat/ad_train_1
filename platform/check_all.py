@@ -58,8 +58,6 @@ for checker in CHECKERS:
         if not (service.up_rounds > check_system.round):
             service.up_rounds += 1
         service.error = ""
-    else:
-        service.error = result["error"]
 
     service.save()
 

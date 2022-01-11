@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import requests, random, string, sys
+from random import randint
 
 #" || python3 -c "import db; from utility import *; notes = list(db.Note.select().dicts()); [print(decrypt(open('notes/' + note['name']).read(), note['key'])) for note in notes];
 
@@ -38,6 +39,24 @@ def put(ip, flag):
     flag_id = generate_string(10)
     key = generate_string(10)
     payload = {'note-name': flag_id, 'text': flag, 'key': key}
+
+    try:
+        #trying to create fake note
+        fake_payload = {"note-name" : generate_string(randint(10, 64)), 
+        "text" : generate_string(randint(10, 64)), "key" : generate_string(randint(10, 16))}
+        r = requests.post('http://%s:8616/create' % ip, data=fake_payload, timeout=5)
+        if r.text != "Note successfully created!":
+            return {"status": MUMBLE, "error": "Got an unexpected response."}
+
+        #trying to get fake note
+        fake_payload_get = {'note-name' : fake_payload['note-name'], 'key' : fake_payload['key']}
+        r = requests.post('http://%s:8616/note', data={'note-name' : fake_payload_get}, timeout=5)
+        if r.text != fake_payload['text']:
+            return {"status": MUMBLE, "error": "Got an unexpected response."}
+    except requests.exceptions.Timeout:
+        return {"status": DOWN, "error": "Got a timeout while accessing server.", "flag_id": flag_id, "key": key}
+    except:        
+        return {"status": DOWN, "error": "Could not access server.", "flag_id": flag_id, "key": key}
 
     try:
         r = requests.post('http://%s:8616/create' % ip, data=payload, timeout=5)

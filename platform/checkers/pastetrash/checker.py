@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import requests, random, string, sys
+from random import randint
 
 PORT = 8080
 
@@ -32,8 +33,22 @@ def check(ip):
 
 
 def put(ip, flag):
-    s = requests.Session()
+    try:
+        #trying to create fake note
+        fake_payload = {"content" : generate_string(randint(10, 128))}
+        r = requests.post("http://" + ip + ":8080/", data=fake_payload, timeout=5)
+        if fake_payload["content"] not in r.text:
+            return {"status": MUMBLE, "error": "Got an unexpected response."}
 
+        if r.text != fake_payload['text']:
+            return {"status": MUMBLE, "error": "Got an unexpected response."}
+    except requests.exceptions.Timeout:
+        return {"status": DOWN, "error": "Got a timeout while accessing server."}
+    except Exception as e:
+        print(e)
+        return {"status": DOWN, "error": "Could not access server."}
+
+    s = requests.Session()
     username = generate_string(16)
     pwd = generate_string(16)
     try:

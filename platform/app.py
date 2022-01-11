@@ -16,7 +16,7 @@ scheduler.start()
 
 init_db(db)
 
-@scheduler.task('interval', id='checker', seconds=CONFIG["ROUND_DURATION"])
+@scheduler.task('interval', id='checker', seconds=CONFIG["ROUND_DURATION"] / 2)
 def check_all():
     db.connect()
     check_system = CheckSystem.select()[0]
