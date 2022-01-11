@@ -49,7 +49,7 @@ def put(ip, flag):
     username = generate_string(16)
     pwd = generate_string(16)
     try:
-        r = s.post("http://" + ip + ":8080/auth", data={"username" : username, "pwd" : pwd})
+        r = s.post("http://" + ip + ":8080/auth", data={"username" : username, "pwd" : pwd}, timeout=5)
     except requests.exceptions.Timeout as e:
         return {"status": DOWN, "error": "Got a timeout while accessing server."}
     except:
@@ -59,7 +59,7 @@ def put(ip, flag):
         return {"status": MUMBLE, "error": "Got an unexpected response.#3"}
 
     try: 
-        r = s.post("http://" + ip + ":8080/", data={"content" : flag})
+        r = s.post("http://" + ip + ":8080/", data={"content" : flag}, timeout=5)
     except requests.exceptions.Timeout as e:
         return {"status": DOWN, "error": "Got a timeout while accessing server."}
     except Exception as e:
