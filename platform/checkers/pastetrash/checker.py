@@ -25,7 +25,7 @@ def check(ip):
 
     if r.status_code != 200:
         return {"status": DOWN, "error": "Could not access server.#2"}
-        
+
     if r.headers["Content-Type"] != "text/html; charset=utf-8":
         return {"status": MUMBLE, "error": "Page content is corrupted"}
     if "Content" not in r.text:
@@ -40,13 +40,9 @@ def put(ip, flag):
         r = requests.post("http://" + ip + ":8080/", data=fake_payload, timeout=5)
         if fake_payload["content"] not in r.text:
             return {"status": MUMBLE, "error": "Got an unexpected response.#1"}
-
-        if r.text != fake_payload['text']:
-            return {"status": MUMBLE, "error": "Got an unexpected response.#2"}
     except requests.exceptions.Timeout:
         return {"status": DOWN, "error": "Got a timeout while accessing server."}
     except Exception as e:
-        print(e)
         return {"status": DOWN, "error": "Could not access server.#3"}
 
     s = requests.Session()

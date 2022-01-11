@@ -50,8 +50,8 @@ def put(ip, flag):
 
         #trying to get fake note
         fake_payload_get = {'note-name' : fake_payload['note-name'], 'key' : fake_payload['key']}
-        r = requests.post('http://%s:8616/note' % ip, data={'note-name' : fake_payload_get}, timeout=5)
-        if r.text != fake_payload['text']:
+        r = requests.post('http://%s:8616/note' % ip, data=fake_payload_get, timeout=5)
+        if fake_payload['text'] not in r.text:
             return {"status": MUMBLE, "error": "Got an unexpected response.#2"}
 
     except requests.exceptions.Timeout:
