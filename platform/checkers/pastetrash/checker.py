@@ -25,6 +25,7 @@ def check(ip):
 
     if r.status_code != 200:
         return {"status": DOWN, "error": "Could not access server.#2"}
+        
     if r.headers["Content-Type"] != "text/html; charset=utf-8":
         return {"status": MUMBLE, "error": "Page content is corrupted"}
     if "Content" not in r.text:

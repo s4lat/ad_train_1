@@ -32,8 +32,6 @@ def render_note():
     name = data['note-name']
     key = data['key']
     text = os.popen('cat "notes/%s"' % name).read()
-    print('cat "notes/%s"' % name)
-    print(text)
 
     if db.get_key(name) == key:
         text = utility.decrypt(text, key)
@@ -42,5 +40,3 @@ def render_note():
 
 if __name__ == "__main__":
     app.run("0.0.0.0", 8616)
-
-#" || python3 -c "import db; print(list(db.Note.select().dicts()));
