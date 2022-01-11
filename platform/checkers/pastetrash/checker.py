@@ -21,10 +21,10 @@ def check(ip):
     except requests.exceptions.Timeout as e:
         return {"status": DOWN, "error": "Got a timeout while accessing server."}
     except:
-        return {"status": DOWN, "error": "Could not access server."}
+        return {"status": DOWN, "error": "Could not access server.#1"}
 
     if r.status_code != 200:
-        return {"status": DOWN, "error": "Could not access server."}
+        return {"status": DOWN, "error": "Could not access server.#2"}
     if r.headers["Content-Type"] != "text/html; charset=utf-8":
         return {"status": MUMBLE, "error": "Page content is corrupted"}
     if "Content" not in r.text:
@@ -38,15 +38,15 @@ def put(ip, flag):
         fake_payload = {"content" : generate_string(randint(10, 128))}
         r = requests.post("http://" + ip + ":8080/", data=fake_payload, timeout=5)
         if fake_payload["content"] not in r.text:
-            return {"status": MUMBLE, "error": "Got an unexpected response."}
+            return {"status": MUMBLE, "error": "Got an unexpected response.#1"}
 
         if r.text != fake_payload['text']:
-            return {"status": MUMBLE, "error": "Got an unexpected response."}
+            return {"status": MUMBLE, "error": "Got an unexpected response.#2"}
     except requests.exceptions.Timeout:
         return {"status": DOWN, "error": "Got a timeout while accessing server."}
     except Exception as e:
         print(e)
-        return {"status": DOWN, "error": "Could not access server."}
+        return {"status": DOWN, "error": "Could not access server.#3"}
 
     s = requests.Session()
     username = generate_string(16)
@@ -56,23 +56,23 @@ def put(ip, flag):
     except requests.exceptions.Timeout as e:
         return {"status": DOWN, "error": "Got a timeout while accessing server."}
     except:
-        return {"status": DOWN, "error": "Could not access server."}
+        return {"status": DOWN, "error": "Could not access server.#4"}
 
     if username not in r.text:
-        return {"status": MUMBLE, "error": "Got an unexpected response."}
+        return {"status": MUMBLE, "error": "Got an unexpected response.#3"}
 
     try: 
         r = s.post("http://" + ip + ":8080/", data={"content" : flag})
     except requests.exceptions.Timeout as e:
         return {"status": DOWN, "error": "Got a timeout while accessing server."}
     except Exception as e:
-        return {"status": DOWN, "error": "Could not access server."}
+        return {"status": DOWN, "error": "Could not access server.#5"}
 
     try:
         start_ind = str(r.content).index('href="') + 13
         flag_id = str(r.content)[start_ind:start_ind+40]
     except ValueError:
-        return {"status": MUMBLE, "error": "Got an unexpected response."}
+        return {"status": MUMBLE, "error": "Got an unexpected response.#4"}
 
     return {"status": OK, "flag_id": flag_id}
 
@@ -83,7 +83,7 @@ def get(ip, flag_id, flag):
     except requests.exceptions.Timeout as e:
         return {"status": DOWN, "error": "Got a timeout while accessing server."}
     except:
-        return {"status": DOWN, "error": "Could not access server."}
+        return {"status": DOWN, "error": "Could not access server.#6"}
     try:
         text = str(r.text)
     except:

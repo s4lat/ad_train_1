@@ -24,10 +24,10 @@ def check(ip):
     except requests.exceptions.Timeout as e:
         return {"status": DOWN, "error": "Got a timeout while accessing server."}
     except:
-        return {"status": DOWN, "error": "Could not access server."}
+        return {"status": DOWN, "error": "Could not access server.#1"}
 
     if r.status_code != 200:
-        return {"status": DOWN, "error": "Could not access server."}
+        return {"status": DOWN, "error": "Could not access server. #2"}
     if r.headers["Content-Type"] != "text/html; charset=utf-8":
         return {"status": MUMBLE, "error": "Page content is corrupted"}
     if "n0t3b00k" not in r.text:
@@ -46,27 +46,28 @@ def put(ip, flag):
         "text" : generate_string(randint(10, 64)), "key" : generate_string(randint(10, 16))}
         r = requests.post('http://%s:8616/create' % ip, data=fake_payload, timeout=5)
         if r.text != "Note successfully created!":
-            return {"status": MUMBLE, "error": "Got an unexpected response."}
+            return {"status": MUMBLE, "error": "Got an unexpected response.#1"}
 
         #trying to get fake note
         fake_payload_get = {'note-name' : fake_payload['note-name'], 'key' : fake_payload['key']}
         r = requests.post('http://%s:8616/note', data={'note-name' : fake_payload_get}, timeout=5)
         if r.text != fake_payload['text']:
-            return {"status": MUMBLE, "error": "Got an unexpected response."}
+            return {"status": MUMBLE, "error": "Got an unexpected response.#2"}
+
     except requests.exceptions.Timeout:
         return {"status": DOWN, "error": "Got a timeout while accessing server.", "flag_id": flag_id, "key": key}
     except:        
-        return {"status": DOWN, "error": "Could not access server.", "flag_id": flag_id, "key": key}
+        return {"status": DOWN, "error": "Could not access server.#3", "flag_id": flag_id, "key": key}
 
     try:
         r = requests.post('http://%s:8616/create' % ip, data=payload, timeout=5)
     except requests.exceptions.Timeout as e:
         return {"status": DOWN, "error": "Got a timeout while accessing server.", "flag_id": flag_id, "key": key}
     except:
-        return {"status": DOWN, "error": "Could not access server.", "flag_id": flag_id, "key": key}
+        return {"status": DOWN, "error": "Could not access server.#4", "flag_id": flag_id, "key": key}
 
     if r.text != "Note successfully created!":
-        return {"status": MUMBLE, "error": "Got an unexpected response.", "flag_id": flag_id, "key": key}
+        return {"status": MUMBLE, "error": "Got an unexpected response.#3", "flag_id": flag_id, "key": key}
     return {"status": OK, "flag_id": "%s.%s" % (flag_id, key)}
 
 
@@ -79,7 +80,7 @@ def get(ip, flag_id, flag):
     except requests.exceptions.Timeout as e:
         return {"status": DOWN, "error": "Got a timeout while accessing server."}
     except:
-        return {"status": DOWN, "error": "Could not access server."}
+        return {"status": DOWN, "error": "Could not access server.#5"}
     try:
         text = str(r.text)
     except:
