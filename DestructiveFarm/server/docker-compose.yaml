@@ -1,0 +1,6 @@
+version: "3.3"
+services:
+  destructive_farm:
+    build: .
+    ports:
+      - 1337:1337
